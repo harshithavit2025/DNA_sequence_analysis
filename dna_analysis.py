@@ -1,0 +1,171 @@
+import mysql.connector
+
+# Setting up
+def database_setup():
+    conn = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        passwd='h2007',
+        database='dna_analysis'
+    )
+    cur = conn.cursor()
+
+    # Create tables if they don't already exist
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS dna_sequences (
+            ID INT AUTO_INCREMENT PRIMARY KEY,
+            sequence VARCHAR(255),
+            is_valid BOOLEAN
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS dna_analysis_results (
+            seq_ID INT,
+            match_status VARCHAR(20),
+            base_a_count VARCHAR(10),
+            replaced_seq VARCHAR(255),
+            FOREIGN KEY (seq_ID) REFERENCES dna_sequences(ID)
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS rna_seq (
+            seq_ID INT,
+            rna_sequence VARCHAR(255),
+            pattern VARCHAR(50),
+            pattern_position VARCHAR(50),
+            FOREIGN KEY (seq_ID) REFERENCES dna_sequences(ID)
+        )
+    """)
+
+    conn.commit()
+    return conn, cur
+
+
+# Defining required functions
+def is_valid_dna(seq):
+    valid_bases = {'A', 'T', 'G', 'C'}  # set of valid bases
+    for base in seq:
+        if base not in valid_bases:
+            return False
+    return True
+
+
+def complement(seq):
+    mapping = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+    comp = ''
+    for base in seq:
+        comp += mapping.get(base, base)
+    return comp
+
+
+def base_frequency(valid_sequences):
+    base_freq = {'A': 0, 'T': 0, 'G': 0, 'C': 0}
+    for seq in valid_sequences:
+        for b in seq:
+            if b in base_freq:
+                base_freq[b] += 1
+    return base_freq
+
+
+# Main logic
+def main():
+    conn, cur = database_setup()
+
+    n = int(input("Enter number of DNA sequences: "))
+    sequences = []
+    for i in range(n):
+        seq = input(f"Enter DNA sequence {i + 1}: ").upper()
+        valid = is_valid_dna(seq)
+        cur.execute("INSERT INTO dna_sequences(sequence, is_valid) VALUES (%s, %s)", (seq, valid))
+        sequences.append((seq, valid))
+    conn.commit()
+
+    search_seq = input("Enter specific sequence to search: ").upper()
+    base = input("Enter base to count (A/T/G/C): ").upper()
+    sub_from = input("Enter substring to replace: ").upper()
+    sub_to = input("Enter string to replace with: ").upper()
+    pattern = input("Enter pattern to search position: ").upper()
+
+    valid_sequences = [seq for seq, valid in sequences if valid]
+    base_freq = base_frequency(valid_sequences)
+
+    validation_results = []
+    match_results = []
+    count_results = []
+    replace_results = []
+    rna_results = []
+    pattern_results = []
+    complement_results = []
+
+    for seq_id, (seq, valid) in enumerate(sequences, start=1):
+        if not valid:
+            validation_results.append(f"DNA sequence {seq_id}: Invalid")
+            match_results.append(f"DNA sequence {seq_id}: No Match")
+            count_results.append(f"DNA sequence {seq_id}: -")
+            replace_results.append(f"DNA sequence {seq_id} after replacement: Invalid Sequence")
+            rna_results.append("Invalid")
+            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: Invalid Sequence")
+            complement_results.append(f"Complementary strand of DNA sequence {seq_id}: Invalid Sequence")
+            continue
+
+        validation_results.append(f"DNA sequence {seq_id}: Valid")
+
+        match_status = "Match" if search_seq in seq else "No Match"
+        match_results.append(f"DNA sequence {seq_id}: {match_status}")
+
+        base_count = seq.count(base)
+        count_results.append(f"DNA sequence {seq_id}: {base_count}")
+
+        replaced_seq = seq.replace(sub_from, sub_to)
+        replace_results.append(f"DNA sequence {seq_id} after replacement: {replaced_seq}")
+
+        comp_seq = complement(seq)
+        complement_results.append(f"Complementary strand of DNA sequence {seq_id}: {comp_seq}")
+
+        rna_seq = seq.replace('T', 'U')
+        rna_results.append(rna_seq)
+
+        pos = seq.find(pattern)
+        if pos != -1:
+            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: {pos + 1}")
+        else:
+            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: Not Found")
+
+        cur.execute(
+            "INSERT INTO rna_seq(seq_ID, rna_sequence, pattern, pattern_position) VALUES (%s, %s, %s, %s)",
+            (seq_id, rna_seq, pattern, str(pos + 1) if pos != -1 else None)
+        )
+
+    conn.commit()
+    conn.close()
+
+    # Printing the outputs
+    print()
+    for line in validation_results:
+        print(line)
+    print()
+    for line in match_results:
+        print(line)
+    print()
+    for line in count_results:
+        print(line)
+    print()
+    print(f"Frequency of Unique Bases: {base_freq}")
+    print()
+    for line in replace_results:
+        print(line)
+    print()
+    print(f"DNA to RNA: {rna_results}")
+    print()
+    for line in pattern_results:
+        print(line)
+    print()
+    for line in complement_results:
+        print(line)
+
+
+# Execute
+if __name__ == "__main__":
+    main()
