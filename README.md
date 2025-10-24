@@ -1,4 +1,4 @@
-This Python project focuses on processing and analyzing DNA sequences — an essential part of research in genetics, molecular biology, and medicine. The program helps users understand genetic data by performing various operations such as validation, pattern searching, base counting, replacement, RNA conversion, and complementary strand generation.
+This Python project focuses on processing and analyzing DNA sequences , an essential part of research in genetics, molecular biology, and medicine. The program helps users understand genetic data by performing various operations such as validation, pattern searching, base counting, replacement, RNA conversion, and complementary strand generation.
 
 Through this project, users can explore how DNA sequences are analyzed computationally and how small sequence changes can be detected and manipulated using programming logic.
 
@@ -8,16 +8,16 @@ Basic concepts of strings, loops, conditionals, lists, and dictionaries
 
 INPUT FORMAT:
 The program accepts the following inputs from the user:
--Number of DNA sequences (n)
--The DNA sequences themselves (one per line)
--Specific sequence to search (e.g., TATAAA)
--Base to count (e.g., A)
--Substring to replace (e.g., AT)
--String to replace it with (e.g., X)
--Characters to replace for RNA conversion:
-    Character to replace (e.g., T)
-    Replacement character (e.g., U)
--Pattern to find position (e.g., CGT)
+1.Number of DNA sequences (n)
+2.The DNA sequences themselves (one per line)
+3.Specific sequence to search (e.g., TATAAA)
+4.Base to count (e.g., A)
+5.Substring to replace (e.g., AT)
+6.String to replace it with (e.g., X)
+7.Characters to replace for RNA conversion:
+    i)Character to replace (e.g., T)
+    ii)Replacement character (e.g., U)
+8.Pattern to find position (e.g., CGT)
 
 
 The program performs the following operations on DNA sequences:
