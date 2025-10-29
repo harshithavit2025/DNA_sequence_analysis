@@ -1,1 +1,2 @@
-Taking inputs, validating and storing data in databases- Harshitha
+Taking inputs, validating ,storing data in databases, base count- Harshitha
+Read me, testing- Afsinaa
