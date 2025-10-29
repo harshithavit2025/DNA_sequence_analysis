@@ -84,9 +84,6 @@ def main():
 
     search_seq = input("Enter specific sequence to search: ").upper()
     base = input("Enter base to count (A/T/G/C): ").upper()
-    sub_from = input("Enter substring to replace: ").upper()
-    sub_to = input("Enter string to replace with: ").upper()
-    pattern = input("Enter pattern to search position: ").upper()
 
     valid_sequences = [seq for seq, valid in sequences if valid]
     base_freq = base_frequency(valid_sequences)
@@ -104,10 +101,6 @@ def main():
             validation_results.append(f"DNA sequence {seq_id}: Invalid")
             match_results.append(f"DNA sequence {seq_id}: No Match")
             count_results.append(f"DNA sequence {seq_id}: -")
-            replace_results.append(f"DNA sequence {seq_id} after replacement: Invalid Sequence")
-            rna_results.append("Invalid")
-            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: Invalid Sequence")
-            complement_results.append(f"Complementary strand of DNA sequence {seq_id}: Invalid Sequence")
             continue
 
         validation_results.append(f"DNA sequence {seq_id}: Valid")
@@ -124,12 +117,15 @@ def main():
 
     # Printing the outputs
     print()
+    print("Validation Results:")
     for line in validation_results:
         print(line)
     print()
+    print("Match Results")
     for line in match_results:
         print(line)
     print()
+    print("Specific Base Count Results:")
     for line in count_results:
         print(line)
     print()
