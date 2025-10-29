@@ -1,2 +1,3 @@
 python 
 mysql
+a database named "dna_analysis" has to be created
