@@ -118,25 +118,6 @@ def main():
         base_count = seq.count(base)
         count_results.append(f"DNA sequence {seq_id}: {base_count}")
 
-        replaced_seq = seq.replace(sub_from, sub_to)
-        replace_results.append(f"DNA sequence {seq_id} after replacement: {replaced_seq}")
-
-        comp_seq = complement(seq)
-        complement_results.append(f"Complementary strand of DNA sequence {seq_id}: {comp_seq}")
-
-        rna_seq = seq.replace('T', 'U')
-        rna_results.append(rna_seq)
-
-        pos = seq.find(pattern)
-        if pos != -1:
-            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: {pos + 1}")
-        else:
-            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: Not Found")
-
-        cur.execute(
-            "INSERT INTO rna_seq(seq_ID, rna_sequence, pattern, pattern_position) VALUES (%s, %s, %s, %s)",
-            (seq_id, rna_seq, pattern, str(pos + 1) if pos != -1 else None)
-        )
 
     conn.commit()
     conn.close()
@@ -153,19 +134,8 @@ def main():
         print(line)
     print()
     print(f"Frequency of Unique Bases: {base_freq}")
-    print()
-    for line in replace_results:
-        print(line)
-    print()
-    print(f"DNA to RNA: {rna_results}")
-    print()
-    for line in pattern_results:
-        print(line)
-    print()
-    for line in complement_results:
-        print(line)
-
 
 # Execute
 if __name__ == "__main__":
     main()
+
