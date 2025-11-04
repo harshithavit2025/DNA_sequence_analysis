@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNA Analyzer</title>
+  <style>
+    /* --- Soft Lilac Theme --- */
+    :root {
+      --primary: #a899c8;    /* soft lavender */
+      --secondary: #ece8f5;  /* pale lilac background for main box */
+      --background: #f9f8fb; /* very light lilac / almost white */
+      --text-dark: #2f2a38;
+      --text-light: #fff;
+    }
+
+    body {
+      font-family: "Segoe UI", "Helvetica", sans-serif;
+      background: var(--background);
+      margin: 0;
+      padding: 0;
+      color: var(--text-dark);
+    }
+
+    header {
+      background: var(--primary);
+      color: var(--text-light);
+      text-align: center;
+      padding: 1.8rem 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      letter-spacing: 0.5px;
+    }
+
+    main {
+      max-width: 850px;
+      margin: 2.5rem auto;
+      background: var(--secondary);
+      padding: 2rem 2.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+      color: var(--text-dark);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #c9c3db;
+      border-radius: 6px;
+      background: #fdfcff;
+      font-size: 15px;
+      box-sizing: border-box;
+      color: var(--text-dark);
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: var(--text-light);
+      border: none;
+      padding: 12px 22px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 16px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      background-color: #9487be;
+      transform: translateY(-1px);
+    }
+
+    h2 {
+      color: var(--primary);
+      border-left: 5px solid var(--primary);
+      padding-left: 10px;
+      margin-top: 2rem;
+    }
+
+    pre {
+      background: #fdfcff;
+      border-left: 4px solid var(--primary);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: #3a2a4a;
+      font-family: "Consolas", monospace;
+    }
+
+    footer {
+      text-align: center;
+      color: #766d9e;
+      padding: 1rem;
+      margin-top: 2rem;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>DNA Analyzer</h1>
+</header>
+
+<main>
+  <form id="dnaForm">
+    <label>1. Number of DNA sequences (n)</label>
+    <input type="number" id="numSeq" required>
+
+    <label>2. Enter DNA sequences (one per line)</label>
+    <textarea id="sequences" rows="5" placeholder="e.g. atcgtataaa&#10;ttaagcgt"></textarea>
+
+    <label>3. Specific sequence to search (e.g., TATAAA)</label>
+    <input type="text" id="searchSeq">
+
+    <label>4. Base to count (e.g., A)</label>
+    <input type="text" id="baseCount">
+
+    <label>5. Substring to replace (e.g., AT)</label>
+    <input type="text" id="replaceFrom">
+
+    <label>6. String to replace it with (e.g., X)</label>
+    <input type="text" id="replaceTo">
+
+    <label>7. RNA Conversion</label>
+    <div style="display: flex; gap: 4%;">
+      <input type="text" id="rnaFrom" placeholder="Character to replace (e.g., T)" style="flex:1;">
+      <input type="text" id="rnaTo" placeholder="Replacement (e.g., U)" style="flex:1;">
+    </div>
+
+    <label>8. Pattern to find position (e.g., CGT)</label>
+    <input type="text" id="pattern">
+
+    <button type="button" onclick="analyzeDNA()">Analyze</button>
+  </form>
+
+  <h2>Results</h2>
+  <pre id="output">Your results will appear here after analysis.</pre>
+</main>
+
+<footer>
+  © 2025 DNA Analyzer
+</footer>
+
+<script>
+function analyzeDNA() {
+  const n = parseInt(document.getElementById("numSeq").value);
+  const seqInput = document.getElementById("sequences").value.trim().split(/\r?\n/).map(s => s.toUpperCase());
+  const searchSeq = document.getElementById("searchSeq").value.trim().toUpperCase();
+  const baseToCount = document.getElementById("baseCount").value.trim().toUpperCase();
+  const replaceFrom = document.getElementById("replaceFrom").value.trim().toUpperCase();
+  const replaceTo = document.getElementById("replaceTo").value.trim().toUpperCase();
+  const rnaFrom = document.getElementById("rnaFrom").value.trim().toUpperCase();
+  const rnaTo = document.getElementById("rnaTo").value.trim().toUpperCase();
+  const pattern = document.getElementById("pattern").value.trim().toUpperCase();
+  
+  let output = "";
+  let baseFreq = {A:0, T:0, G:0, C:0};
+
+  if (seqInput.length !== n) {
+    alert("Number of sequences does not match input count!");
+    return;
+  }
+
+  // Validation
+  let validity = seqInput.map(seq => /^[ATGC]+$/.test(seq) ? "Valid" : "Invalid");
+  validity.forEach((v, i) => output += `DNA sequence ${i+1}: ${v}\n`);
+  output += "\n";
+
+  // Pattern Search
+  seqInput.forEach((seq, i) => {
+    if (validity[i] === "Valid") {
+      output += `DNA sequence ${i+1}: ${seq.includes(searchSeq) ? "Match" : "No Match"}\n`;
+    } else output += `DNA sequence ${i+1}: Invalid\n`;
+  });
+  output += "\n";
+
+  // Base Count
+  seqInput.forEach((seq, i) => {
+    if (validity[i] === "Valid") {
+      let count = (seq.split(baseToCount).length - 1);
+      output += `DNA sequence ${i+1}: ${count}\n`;
+    } else output += `DNA sequence ${i+1}: -\n`;
+  });
+  output += "\n";
+
+  // Unique Base Frequency
+  seqInput.forEach((seq, i) => {
+    if (validity[i] === "Valid") {
+      for (let base of seq) if (baseFreq[base] !== undefined) baseFreq[base]++;
+    }
+  });
+  output += `Frequency of Unique Bases: ${JSON.stringify(baseFreq)}\n\n`;
+
+  // Substring Replacement
+  seqInput.forEach((seq, i) => {
+    if (validity[i] === "Valid") {
+      output += `DNA sequence ${i+1} after replacement: ${seq.replaceAll(replaceFrom, replaceTo)}\n`;
+    } else output += `DNA sequence ${i+1} after replacement: Invalid Sequence\n`;
+  });
+  output += "\n";
+
+  // DNA to RNA Conversion
+  let rnaSeqs = seqInput.map((seq, i) =>
+    validity[i] === "Valid" ? seq.replaceAll(rnaFrom, rnaTo) : "Invalid"
+  );
+  output += `DNA to RNA: ${JSON.stringify(rnaSeqs)}\n\n`;
+
+  // Pattern Position Search
+  seqInput.forEach((seq, i) => {
+    if (validity[i] === "Valid") {
+      let pos = seq.indexOf(pattern);
+      if (pos === -1) output += `Position of given pattern in DNA sequence ${i+1}: Not Found\n`;
+      else output += `Position of given pattern in DNA sequence ${i+1}: ${pos}\n`;
+    } else output += `Position of given pattern in DNA sequence ${i+1}: Invalid Sequence\n`;
+  });
+  output += "\n";
+
+  // Complementary Strand
+  const complement = {A:'T', T:'A', C:'G', G:'C'};
+  seqInput.forEach((seq, i) => {
+    if (validity[i] === "Valid") {
+      let comp = seq.split("").map(b => complement[b] || "").join("");
+      output += `Complementary strand of DNA sequence ${i+1}: ${comp}\n`;
+    } else output += `Complementary strand of DNA sequence ${i+1}: Invalid Sequence\n`;
+  });
+
+  document.getElementById("output").textContent = output;
+}
+</script>
+
+</body>
+</html>
