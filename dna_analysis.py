@@ -84,6 +84,9 @@ def main():
 
     search_seq = input("Enter specific sequence to search: ").upper()
     base = input("Enter base to count (A/T/G/C): ").upper()
+    sub_from = input("Enter substring to replace: ").upper()
+    sub_to = input("Enter string to replace with: ").upper()
+    pattern = input("Enter pattern to search position: ").upper()
 
     valid_sequences = [seq for seq, valid in sequences if valid]
     base_freq = base_frequency(valid_sequences)
@@ -101,6 +104,10 @@ def main():
             validation_results.append(f"DNA sequence {seq_id}: Invalid")
             match_results.append(f"DNA sequence {seq_id}: No Match")
             count_results.append(f"DNA sequence {seq_id}: -")
+            replace_results.append(f"DNA sequence {seq_id} after replacement: Invalid Sequence")
+            rna_results.append("Invalid")
+            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: Invalid Sequence")
+            complement_results.append(f"Complementary strand of DNA sequence {seq_id}: Invalid Sequence")
             continue
 
         validation_results.append(f"DNA sequence {seq_id}: Valid")
@@ -111,6 +118,25 @@ def main():
         base_count = seq.count(base)
         count_results.append(f"DNA sequence {seq_id}: {base_count}")
 
+        replaced_seq = seq.replace(sub_from, sub_to)
+        replace_results.append(f"DNA sequence {seq_id} after replacement: {replaced_seq}")
+
+        comp_seq = complement(seq)
+        complement_results.append(f"Complementary strand of DNA sequence {seq_id}: {comp_seq}")
+
+        rna_seq = seq.replace('T', 'U')
+        rna_results.append(rna_seq)
+
+        pos = seq.find(pattern)
+        if pos != -1:
+            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: {pos + 1}")
+        else:
+            pattern_results.append(f"Position of given pattern in DNA sequence {seq_id}: Not Found")
+
+        cur.execute(
+            "INSERT INTO rna_seq(seq_ID, rna_sequence, pattern, pattern_position) VALUES (%s, %s, %s, %s)",
+            (seq_id, rna_seq, pattern, str(pos + 1) if pos != -1 else None)
+        )
 
     conn.commit()
     conn.close()
@@ -121,17 +147,32 @@ def main():
     for line in validation_results:
         print(line)
     print()
-    print("Match Results")
+    print("Match Results:")
     for line in match_results:
         print(line)
     print()
-    print("Specific Base Count Results:")
+    print("Specific Base Count:")
     for line in count_results:
         print(line)
     print()
     print(f"Frequency of Unique Bases: {base_freq}")
+    print()
+    print("Substring Replace Results:")
+    for line in replace_results:
+        print(line)
+    print()
+    print("DNA to RNA Conversion Results:)")
+    print(f"DNA to RNA: {rna_results}")
+    print()
+    print("Pattern Search Results:")
+    for line in pattern_results:
+        print(line)
+    print()
+    print("Complement Results:")
+    for line in complement_results:
+        print(line)
+
 
 # Execute
 if __name__ == "__main__":
     main()
-
